@@ -25,6 +25,7 @@ If you know of a better, more reliable tracker list that is automatically update
 This project is developed with passion in my free time. If you enjoy using Torrent Maker Pro and want to help keep the app running, updated, and bug-free, please consider buying me a coffee!
 
 👉 Buy me a coffee via PayPal (PandaBoyNL)
+https://www.paypal.com/paypalme/PandaBoyNL
 
 Thank you for your support! ❤️
 
