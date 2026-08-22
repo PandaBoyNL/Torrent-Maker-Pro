@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Torrent-Maker-Pro</Name>
+  <Repository>pandaboynl/torrent-maker-pro:latest</Repository>
+  <Registry>https://hub.docker.com/r/pandaboynl/torrent-maker-pro</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/PandaBoyNL/torrent-maker-pro/issues</Support>
+  <Project>https://github.com/PandaBoyNL/torrent-maker-pro</Project>
+  <Overview>A lightning-fast WebUI to locally generate .torrent files directly from your Unraid disks. No upload time, everything happens directly on your server!&#xD;&#xD;⚠️ IMPORTANT: By default, this app uses port 8080. If port 8080 is already in use on your Unraid server, please change the 'WebUI Port' (Host Port) below to another free port (e.g., 8081 or 8282) to allow the app to start successfully.</Overview>  <Category>Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/PandaBoyNL/torrent-maker-pro/main/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="The port on which the application is accessible. ⚠️ Change this if 8080 is already in use!" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="Storage (Torrents)" Target="/storage" Default="/mnt/user/appdata/torrent-maker-pro/torrents" Mode="rw" Description="The directory on your Unraid server where the .torrent files will be saved." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/torrent-maker-pro/torrents</Config>
+  <Config Name="Files (Source)" Target="/data" Default="/mnt/user/" Mode="ro" Description="The directory on your Unraid server containing the original files you want to create a torrent from (Read-only)." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/</Config>
+  <Config Name="Discord Webhook (Optional)" Target="DISCORD_WEBHOOK" Default="" Mode="" Description="Paste your Discord Webhook URL here to automatically receive a notification when all torrents are generated." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+</Container>
