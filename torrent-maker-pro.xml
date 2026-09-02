@@ -7,7 +7,7 @@
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>use the contact button in de app</Support>
+  <Support>https://github.com/PandaBoyNL/torrent-maker-pro/issues</Support>
   <Project>https://github.com/PandaBoyNL/torrent-maker-pro</Project>
   <Overview>A lightning-fast WebUI to locally generate .torrent files directly from your Unraid disks. No upload time, everything happens directly on your server!&#xD;&#xD;⚠️ IMPORTANT: By default, this app uses port 8080. If port 8080 is already in use on your Unraid server, please change the 'WebUI Port' (Host Port) below to another free port (e.g., 8081 or 8282) to allow the app to start successfully.</Overview>
   <Changes>
