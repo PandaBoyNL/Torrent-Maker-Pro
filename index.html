@@ -437,20 +437,59 @@
     function slaWebhookOp() { localStorage.setItem('gebruikerDiscordWebhook', document.getElementById('discordWebhookUrl').value.trim()); }
     async function laadInstellingen() { try { const res = await fetch('/api/settings'); const data = await res.json(); const lokaal = localStorage.getItem('gebruikerDiscordWebhook'); const veld = document.getElementById('discordWebhookUrl'); if (data.webhook) { veld.value = data.webhook; localStorage.setItem('gebruikerDiscordWebhook', data.webhook); } else if (lokaal) { veld.value = lokaal; } } catch (e) {} }
 
-    const TRACKER_URL = 'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt';
+    const TRACKER_URLS = [
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_http.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_https.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_i2p.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ip.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_udp.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ws.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_yggdrasil.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_yggdrasil_ip.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt',
+        'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best_ip.txt'
+    ];
     let onlineTrackers = ""; let toonOudeLijst = false;
 
     async function controleerTrackers() {
-        const trackerVeld = document.getElementById('trackers'); const lokaal = localStorage.getItem('mijnTorrentTrackers'); const oud = localStorage.getItem('oudeTorrentTrackers');
-        if (lokaal) trackerVeld.value = lokaal; if (oud) document.getElementById('toggleOldTrackersBtn').style.display = 'block';
+        const trackerVeld = document.getElementById('trackers'); 
+        const lokaal = localStorage.getItem('mijnTorrentTrackers'); 
+        const oud = localStorage.getItem('oudeTorrentTrackers');
+        
+        if (lokaal) trackerVeld.value = lokaal; 
+        if (oud) document.getElementById('toggleOldTrackersBtn').style.display = 'block';
+
         try {
-            const antw = await fetch(TRACKER_URL + '?t=' + Date.now());
-            if (antw.ok) {
-                onlineTrackers = (await antw.text()).split(/\r?\n/).map(r => r.trim()).filter(r => r !== '').join('\n\n');
-                if (!lokaal) pasNieuweTrackersToe(); else if (onlineTrackers !== lokaal) document.getElementById('trackerUpdateKnop').style.display = 'block';
+            let alleGehaaldeTrackers = new Set();
+            
+            for (const url of TRACKER_URLS) {
+                try {
+                    const antw = await fetch(url + '?t=' + Date.now());
+                    if (antw.ok) {
+                        const text = await antw.text();
+                        text.split(/\r?\n/).forEach(r => {
+                            const getrimd = r.trim();
+                            if (getrimd !== '') alleGehaaldeTrackers.add(getrimd);
+                        });
+                    }
+                } catch(err) {
+                    console.warn("Kon " + url + " niet ophalen", err);
+                }
             }
-        } catch (e) { if(!lokaal) trackerVeld.value = "Fout bij ophalen trackers."; }
+
+            onlineTrackers = Array.from(alleGehaaldeTrackers).join('\n\n');
+
+            if (!lokaal) {
+                pasNieuweTrackersToe(); 
+            } else if (onlineTrackers !== lokaal) {
+                document.getElementById('trackerUpdateKnop').style.display = 'block';
+            }
+        } catch (e) { 
+            if(!lokaal) trackerVeld.value = "Fout bij ophalen trackers."; 
+        }
     }
+
     function pasNieuweTrackersToe() { const trackerVeld = document.getElementById('trackers'); if(trackerVeld.value && trackerVeld.value !== onlineTrackers) { localStorage.setItem('oudeTorrentTrackers', trackerVeld.value); document.getElementById('toggleOldTrackersBtn').style.display = 'block'; } trackerVeld.value = onlineTrackers; localStorage.setItem('mijnTorrentTrackers', onlineTrackers); document.getElementById('trackerUpdateKnop').style.display = 'none'; }
     function toggleOudeLijst() { toonOudeLijst = !toonOudeLijst; const btn = document.getElementById('toggleOldTrackersBtn'); const veld = document.getElementById('trackers'); if(toonOudeLijst) { veld.value = localStorage.getItem('oudeTorrentTrackers') || ''; veld.style.borderColor = '#ef4444'; btn.style.background = '#ef4444'; btn.innerText = "Huidige Lijst"; } else { veld.value = localStorage.getItem('mijnTorrentTrackers') || ''; veld.style.borderColor = '#334155'; btn.style.background = '#334155'; btn.innerText = "Oude Lijst"; } }
 
