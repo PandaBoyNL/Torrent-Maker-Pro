@@ -139,26 +139,12 @@
 </script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<!-- Nette Melding Pop-up -->
 <div class="modal-overlay" id="customAlertModal">
     <div class="modal">
         <h2 id="customAlertTitle">Melding</h2>
         <p id="customAlertText"></p>
         <div class="modal-buttons">
             <button class="btn-send" onclick="document.getElementById('customAlertModal').style.display='none'">OK</button>
-        </div>
-    </div>
-</div>
-
-<!-- Contact Modal -->
-<div class="modal-overlay" id="contactModal">
-    <div class="modal">
-        <h2 id="t_cTitle">Neem Contact Op</h2>
-        <input type="text" id="contactName" placeholder="Jouw naam of email (optioneel)">
-        <textarea id="contactMessage" placeholder="Typ hier je bericht of vraag..." style="height: 120px;"></textarea>
-        <div class="modal-buttons">
-            <button class="btn-cancel" id="t_cCancel" onclick="closeContact()">Annuleren</button>
-            <button class="btn-send" id="t_cSend" onclick="verstuurContact()">Versturen</button>
         </div>
     </div>
 </div>
@@ -179,7 +165,7 @@
               ☕ Buy me a coffee
             </a>
 
-            <button class="lang-btn" onclick="openContact()" title="Contact opnemen">💬</button>
+            <a href="https://pandaboynl-s-windows-exe-en-unraid-docker-support.geminilaunch.com" target="_blank" class="lang-btn" style="text-decoration: none; display: inline-block;" title="Contact opnemen">💬</a>
 
             <div class="lang-menu">
                 <button class="lang-btn">🌍</button>
@@ -190,12 +176,18 @@
 
     <div class="grid">
         <div class="col">
-            <label><b id="t_step1">1. Verken Unraid Server (/data)</b></label>
+            <label><b id="t_step1">1. Verken Windows PC</b></label>
             <div class="server-browser">
                 <div class="browser-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <button onclick="navigeerTerug()" title="Map omhoog">⬅️</button>
-                        <span id="huidige-pad-weergave">/data</span>
+                        
+                        <!-- NIEUW: Dropdown voor alle harde schijven -->
+                        <select id="schijfKiezer" onchange="laadMap(this.value)" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #475569; color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; outline: none; font-size: 12px;">
+                            <option value="C:/">C:/</option>
+                        </select>
+
+                        <span id="huidige-pad-weergave">C:/</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label style="margin: 0; color: #cbd5e1; display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 11px;">
@@ -206,10 +198,6 @@
                 </div>
                 <div class="browser-list" id="browser-lijst"></div>
             </div>
-            
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">
-                💾 .torrent bestanden worden automatisch opgeslagen in <b>/storage</b>.
-            </p>
 
             <div style="display: flex; align-items: center; margin-top: 15px; gap: 10px;">
                 <label class="switch" title="Zet dit uit als je een tragere server hebt">
@@ -218,10 +206,15 @@
                 </label>
                 <span style="font-size: 13px; color: #94a3b8;" id="t_turbo">Turbo Modus (5 tegelijk bij >50)</span>
             </div>
-            
+
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155;">
+                <label style="font-size: 12px; color: #94a3b8;"><b style="color: #e2e8f0;">💾 Opslagmap (.torrent bestanden)</b>:</label>
+                <input type="text" id="opslagMap" class="webhook-input" value="C:/Torrents" placeholder="Bijv. C:/Torrents" onchange="slaInstellingenOp()">
+            </div>
+            
+            <div style="margin-top: 15px;">
                 <label style="font-size: 12px; color: #94a3b8;"><b style="color: #e2e8f0;">🔔 Discord Notificatie</b> (Webhook URL - Optioneel):</label>
-                <input type="text" id="discordWebhookUrl" class="webhook-input" placeholder="https://discord.com/api/webhooks/..." onchange="slaWebhookOp()">
+                <input type="text" id="discordWebhookUrl" class="webhook-input" placeholder="https://discord.com/api/webhooks/..." onchange="slaInstellingenOp()">
             </div>
         </div>
 
@@ -253,13 +246,24 @@
     const talen = { "nl": "🇳🇱 Nederlands", "en": "🇺🇸 English", "de": "🇩🇪 Deutsch", "fr": "🇫🇷 Français", "es": "🇪🇸 Español", "it": "🇮🇹 Italiano", "pt": "🇵🇹 Português", "pl": "🇵🇱 Polski", "ru": "🇷🇺 Русский", "tr": "🇹🇷 Türkçe", "ar": "🇸🇦 العربية", "zh-CN": "🇨🇳 中文", "ja": "🇯🇵 日本語", "ko": "🇰🇷 한국어", "hi": "🇮🇳 हिन्दी" };
     function laadTalenMenu() { const lijst = document.getElementById('lang-lijst'); if (!lijst) return; lijst.innerHTML = ''; for (const [code, naam] of Object.entries(talen)) { const a = document.createElement('a'); a.href = "#"; a.innerText = naam; a.onclick = (e) => { e.preventDefault(); document.cookie = `googtrans=/nl/${code}; path=/`; document.cookie = `googtrans=/nl/${code}; domain=.${location.hostname}; path=/`; const sel = document.querySelector(".goog-te-combo"); if (sel) { sel.value = code; sel.dispatchEvent(new Event('change')); } else { window.location.reload(); } }; lijst.appendChild(a); } }
 
-    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1540418081996939336/kcVnOs8WCDy9DMZhH53pVtSSUMhHlxEiFTas9trnoEXIj04zhE2n87RicFdJ0l9qg_Q1";
-    function openContact() { document.getElementById('contactModal').style.display = 'flex'; }
-    function closeContact() { document.getElementById('contactModal').style.display = 'none'; }
-    async function verstuurContact() { const msg = document.getElementById('contactMessage').value.trim(); const nm = document.getElementById('contactName').value.trim() || "Anonieme Gebruiker"; if (!msg) return toonMelding("Fout", "Je bericht is leeg!"); const btn = document.getElementById('t_cSend'); const orig = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true; try { const ans = await fetch(DISCORD_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `🔔 **Nieuw Bericht**\n**Van:** ${nm}\n**Bericht:**\n\`\`\`\n${msg}\n\`\`\`` }) }); if(ans.ok || ans.status === 204) { toonMelding("Succes", "✅ Verzonden!"); document.getElementById('contactMessage').value = ""; closeContact(); } else throw new Error(); } catch (f) { toonMelding("Fout", "❌ Mislukt."); } btn.innerText = orig; btn.disabled = false; }
-
-    let huidigeMapPad = '/data';
+    let huidigeMapPad = 'C:/';
     window.huidigeBestandenLijst = []; 
+
+    // --- NIEUW: Automatisch de harde schijven ophalen ---
+    async function haalSchijvenOp() {
+        try {
+            const res = await fetch('/api/schijven');
+            const data = await res.json();
+            const kiezer = document.getElementById('schijfKiezer');
+            kiezer.innerHTML = ''; // Leeg de standaardwaarde
+            data.schijven.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.innerText = s;
+                kiezer.appendChild(opt);
+            });
+        } catch (e) {}
+    }
 
     async function laadMap(pad) {
         document.getElementById('browser-lijst').innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Laden... ⏳</div>';
@@ -267,9 +271,18 @@
             const res = await fetch('/api/verkenner', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pad: pad }) });
             const data = await res.json();
             if (data.success) {
-                huidigeMapPad = data.huidigeMap; document.getElementById('huidige-pad-weergave').innerText = huidigeMapPad;
+                huidigeMapPad = data.huidigeMap; 
+                document.getElementById('huidige-pad-weergave').innerText = huidigeMapPad;
+                
+                // Zorg dat de dropdown matcht met de huidige schijf
+                const rootDrive = huidigeMapPad.substring(0, 3).toUpperCase();
+                const kiezer = document.getElementById('schijfKiezer');
+                if (kiezer && kiezer.querySelector(`option[value="${rootDrive}"]`)) {
+                    kiezer.value = rootDrive;
+                }
+
                 tekenVerkenner(data.bestanden);
-            } else { toonMelding("Fout", data.error); if(pad !== '/data') laadMap('/data'); }
+            } else { toonMelding("Fout", data.error); if(pad !== 'C:/') laadMap('C:/'); }
         } catch (e) { document.getElementById('browser-lijst').innerHTML = '<div style="text-align:center; padding:20px; color:#ef4444;">Fout bij verbinden met server.</div>'; }
     }
 
@@ -290,7 +303,15 @@
         });
     }
 
-    function navigeerTerug() { if (huidigeMapPad === '/data') return; const delen = huidigeMapPad.split('/'); delen.pop(); laadMap(delen.join('/') || '/'); }
+    function navigeerTerug() { 
+        if (huidigeMapPad.length <= 3) return; 
+        const delen = huidigeMapPad.replace(/\\/g, '/').split('/'); 
+        delen.pop(); 
+        let nieuwPad = delen.join('/'); 
+        if(nieuwPad.length === 2 && nieuwPad.endsWith(':')) nieuwPad += '/'; 
+        laadMap(nieuwPad || 'C:/'); 
+    }
+    
     function toggleSelecteerAlles() { const isChecked = document.getElementById('selectAllItems').checked; document.querySelectorAll('.item-checkbox').forEach(chk => chk.checked = isChecked); }
     function voegGeselecteerdeToe() {
         const checkboxes = document.querySelectorAll('.item-checkbox:checked');
@@ -302,10 +323,9 @@
 
     // --- 🔥 HET NIEUWE LIVE-SYNC SYSTEEM 🔥 ---
 
-    let lokaleWachtrij = [];  // Bestanden die je zojuist hebt aangeklikt
-    let serverWachtrij = [];  // Bestanden waar de server mee bezig is of klaar mee is
+    let lokaleWachtrij = [];  
+    let serverWachtrij = [];  
 
-    // 1. Haal elke 2 seconden de stand van zaken op van de server
     async function syncMetServer() {
         try {
             const res = await fetch('/api/status');
@@ -314,7 +334,7 @@
             tekenWachtrij();
         } catch(e) {}
     }
-    setInterval(syncMetServer, 2000); // Polling (Live Updates)
+    setInterval(syncMetServer, 2000); 
 
     function voegToeAanWachtrij(pad, naam, isMassa = false) {
         if(lokaleWachtrij.find(t => t.pad === pad) || serverWachtrij.find(t => t.pad === pad)) {
@@ -330,7 +350,6 @@
         tekenWachtrij();
     }
 
-    // 2. Teken de actuele stand van zaken op het scherm
     function tekenWachtrij() {
         const comboLijst = [...serverWachtrij, ...lokaleWachtrij];
         const lijstDiv = document.getElementById('job-lijst');
@@ -379,7 +398,6 @@
             lijstDiv.appendChild(div);
         });
 
-        // 3. Pas de grote actieknop aan op basis van wat de server aan het doen is
         startBtn.style.display = 'block';
         startBtn.disabled = false;
 
@@ -399,7 +417,6 @@
         }
     }
 
-    // 4. Stuur het lijstje naar de server
     async function stuurNaarServer() {
         if (lokaleWachtrij.length === 0) return;
         
@@ -410,32 +427,53 @@
         const isTurboAan = document.getElementById('turboToggle').checked;
         const trackers = toonOudeLijst ? localStorage.getItem('mijnTorrentTrackers') : document.getElementById('trackers').value;
         const webhookUrl = document.getElementById('discordWebhookUrl').value.trim();
+        const opslagMap = document.getElementById('opslagMap').value.trim() || 'C:/Torrents';
 
         try {
             await fetch('/api/maak-batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taken: lokaleWachtrij, trackers: trackers, webhookUrl: webhookUrl, turbo: isTurboAan })
+                body: JSON.stringify({ taken: lokaleWachtrij, trackers: trackers, webhookUrl: webhookUrl, turbo: isTurboAan, opslagMap: opslagMap })
             });
-            lokaleWachtrij = []; // Alles is overgedragen aan de server
-            syncMetServer(); // Haal direct de nieuwe status op
+            lokaleWachtrij = []; 
+            syncMetServer(); 
         } catch (e) {
             toonMelding("Fout", "Kan niet verbinden met de server.");
         }
     }
 
-    // 5. Ruim de lijst op de server op (als alles klaar is)
     async function wisVoltooideTakenOpServer() {
         try {
             await fetch('/api/wis-voltooid', { method: 'POST' });
-            syncMetServer(); // Haal direct de opgeschoonde lijst op
+            syncMetServer(); 
         } catch(e) {}
     }
 
 
-    // --- OVERIGE INSTELLINGEN (Webhook & Trackers) ---
-    function slaWebhookOp() { localStorage.setItem('gebruikerDiscordWebhook', document.getElementById('discordWebhookUrl').value.trim()); }
-    async function laadInstellingen() { try { const res = await fetch('/api/settings'); const data = await res.json(); const lokaal = localStorage.getItem('gebruikerDiscordWebhook'); const veld = document.getElementById('discordWebhookUrl'); if (data.webhook) { veld.value = data.webhook; localStorage.setItem('gebruikerDiscordWebhook', data.webhook); } else if (lokaal) { veld.value = lokaal; } } catch (e) {} }
+    // --- OVERIGE INSTELLINGEN (Webhook & Opslagmap & Trackers) ---
+    function slaInstellingenOp() { 
+        localStorage.setItem('gebruikerDiscordWebhook', document.getElementById('discordWebhookUrl').value.trim()); 
+        localStorage.setItem('gebruikerOpslagMap', document.getElementById('opslagMap').value.trim()); 
+    }
+    
+    async function laadInstellingen() { 
+        try { 
+            const res = await fetch('/api/settings'); 
+            const data = await res.json(); 
+            const lokaalWebhook = localStorage.getItem('gebruikerDiscordWebhook'); 
+            const veldWebhook = document.getElementById('discordWebhookUrl'); 
+            
+            if (data.webhook) { 
+                veldWebhook.value = data.webhook; 
+                localStorage.setItem('gebruikerDiscordWebhook', data.webhook); 
+            } else if (lokaalWebhook) { 
+                veldWebhook.value = lokaalWebhook; 
+            } 
+        } catch (e) {} 
+        
+        const lokaalOpslag = localStorage.getItem('gebruikerOpslagMap');
+        if (lokaalOpslag) document.getElementById('opslagMap').value = lokaalOpslag;
+    }
 
     const TRACKER_URLS = [
         'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt',
@@ -496,8 +534,10 @@
     laadTalenMenu();
     laadInstellingen(); 
     controleerTrackers();
-    laadMap('/data'); 
-    syncMetServer(); // Haal bij opstarten direct de server-status op!
+    
+    // Haal de schijven op en laad daarna C:/
+    haalSchijvenOp().then(() => laadMap('C:/')); 
+    syncMetServer(); 
 </script>
 </body>
 </html>
